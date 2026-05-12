@@ -1,0 +1,53 @@
+# Secrets
+.env
+.env.*
+!.env.example
+kaggle.json
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+venv/
+.venv/
+env/
+
+# Data — too large for git, regenerated via Kaggle
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Trained model artifacts (pushed to HF Hub instead)
+models_local/
+*.pkl
+*.joblib
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Cursor AI rules
+.cursor/rules/codacy.mdc
+
+# HF cache (local)
+.hf_cache/

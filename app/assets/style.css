@@ -1,0 +1,76 @@
+/* Global tweaks for the fraud-detection Streamlit app. */
+
+/* Tighter app padding */
+.block-container {
+    padding-top: 1.5rem !important;
+    padding-bottom: 2rem !important;
+    max-width: 1400px;
+}
+
+/* KPI cards */
+.kpi-card {
+    background: linear-gradient(135deg, #111827 0%, #0b1220 100%);
+    border: 1px solid #1f2937;
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+}
+.kpi-label {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+.kpi-value {
+    color: #e2e8f0;
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.kpi-delta-pos { color: #10b981; font-size: 0.85rem; }
+.kpi-delta-neg { color: #f43f5e; font-size: 0.85rem; }
+
+/* Verdict banners */
+.verdict-fraud {
+    background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%);
+    color: #fee2e2;
+    padding: 22px 24px;
+    border-radius: 16px;
+    border-left: 6px solid #f87171;
+    margin: 12px 0;
+}
+.verdict-legit {
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    color: #d1fae5;
+    padding: 22px 24px;
+    border-radius: 16px;
+    border-left: 6px solid #34d399;
+    margin: 12px 0;
+}
+.verdict-warn {
+    background: linear-gradient(135deg, #78350f 0%, #b45309 100%);
+    color: #fef3c7;
+    padding: 22px 24px;
+    border-radius: 16px;
+    border-left: 6px solid #f59e0b;
+    margin: 12px 0;
+}
+.verdict-title { font-size: 1.55rem; font-weight: 700; margin-bottom: 6px; }
+.verdict-sub { font-size: 0.95rem; opacity: 0.85; }
+
+/* Section headings */
+.section-title {
+    color: #22d3ee;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 20px 0 10px;
+    border-bottom: 1px solid #1f2937;
+    padding-bottom: 6px;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: #060b14;
+}
+[data-testid="stSidebar"] .stRadio > div { gap: 4px; }
