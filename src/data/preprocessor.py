@@ -91,10 +91,10 @@ class CustomPreprocessor:
     def _impute(self, df: pd.DataFrame) -> pd.DataFrame:
         out = df.copy()
         for col in out.columns:
-            if out[col].dtype == "object":
-                out[col] = out[col].fillna("Unknown")
-            else:
+            if pd.api.types.is_numeric_dtype(out[col]):
                 out[col] = out[col].fillna(out[col].median())
+            else:
+                out[col] = out[col].fillna("Unknown")
         return out
 
     def fit_transform(self, df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
@@ -102,7 +102,8 @@ class CustomPreprocessor:
         y = df[self.target_col].to_numpy().astype(int)
         x = df.drop(columns=[c for c in (*self.drop_cols, self.target_col) if c in df.columns])
 
-        for col in x.select_dtypes(include=["object"]).columns:
+        non_numeric = [c for c in x.columns if not pd.api.types.is_numeric_dtype(x[c])]
+        for col in non_numeric:
             enc = LabelEncoder()
             x[col] = enc.fit_transform(x[col].astype(str))
             self.encoders[col] = enc

@@ -1,47 +1,45 @@
-"""Dataset loaders. Both PaySim and the custom 51k mixed-feature CSV."""
+"""Dataset loaders.
+
+Datasets live on Hugging Face Hub (private dataset repo created by notebook 01
+in the HF Space). The Streamlit GUI uses these helpers to pull samples for the
+Data Explorer and Live Monitor pages — nothing is stored long-term on the
+local disk, only HF's transparent download cache.
+"""
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
+from huggingface_hub import hf_hub_download
 
-from src.config import CUSTOM_CSV, PAYSIM_CSV
-
-
-class DatasetNotFoundError(FileNotFoundError):
-    """Raised with a friendly message when a CSV is missing from data/raw/."""
+from src.config import HF_TOKEN, HF_USERNAME
 
 
-def _require(path: Path, hint: str) -> Path:
-    if not path.exists():
-        raise DatasetNotFoundError(
-            f"Missing dataset: {path}\n"
-            f"Hint: {hint}\n"
-            "Run `python scripts/download_data.py` or place the file manually."
+def _dataset_repo() -> str:
+    return f"{HF_USERNAME}/fraud-detection-datasets"
+
+
+def _download(filename: str) -> Path:
+    return Path(
+        hf_hub_download(
+            repo_id=_dataset_repo(),
+            filename=filename,
+            repo_type="dataset",
+            token=HF_TOKEN or None,
         )
-    return path
-
-
-def load_paysim(path: Path | None = None) -> pd.DataFrame:
-    """Load the PaySim mobile-money simulator dataset (~6.3M rows)."""
-    csv_path = _require(
-        path or PAYSIM_CSV,
-        "Download PaySim from Kaggle slug 'ealaxi/paysim1' "
-        "and save as data/raw/AIML Dataset.csv",
     )
-    df = pd.read_csv(csv_path)
-    return df
 
 
-def load_custom(path: Path | None = None) -> pd.DataFrame:
-    """Load the 51k-row mixed-feature fraud dataset (device, location, etc.)."""
-    csv_path = _require(
-        path or CUSTOM_CSV,
-        "Download the custom dataset from Kaggle slug 'goyaladi/fraud-detection-dataset' "
-        "and save as data/raw/Fraud Detection Dataset.csv",
-    )
-    df = pd.read_csv(csv_path)
-    return df
+@lru_cache(maxsize=2)
+def load_paysim() -> pd.DataFrame:
+    """Pull PaySim from the HF dataset repo (cached on disk and in memory)."""
+    return pd.read_csv(_download("paysim.csv"))
+
+
+@lru_cache(maxsize=2)
+def load_custom() -> pd.DataFrame:
+    return pd.read_csv(_download("custom.csv"))
 
 
 def summarize(df: pd.DataFrame, name: str) -> dict:

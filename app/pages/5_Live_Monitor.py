@@ -19,7 +19,7 @@ import streamlit as st
 
 from app.components import kpi, page_setup, section_title
 from app.components.sidebar import render_sidebar
-from src.config import PAYSIM_CSV
+from src.data.loader import load_paysim
 from src.inference.predictor import predict_paysim
 
 page_setup("Live Monitor", icon="📡")
@@ -32,22 +32,25 @@ st.caption(
     "Adjust the rate, watch the alert log and KPIs update in real time."
 )
 
-if not PAYSIM_CSV.exists():
-    st.error(
-        f"PaySim CSV missing at {PAYSIM_CSV}. "
-        "Run `python scripts/download_data.py --paysim`."
-    )
-    st.stop()
-
-
-@st.cache_data(show_spinner="Sampling PaySim for stream…")
+@st.cache_data(show_spinner="Pulling PaySim sample from Hugging Face…")
 def _sample_stream(n: int = 500) -> pd.DataFrame:
-    df = pd.read_csv(PAYSIM_CSV)
+    df = load_paysim()
     # Bias the sample toward including some fraud so the UI is interesting
     fraud = df[df["isFraud"] == 1].sample(n=min(50, len(df[df["isFraud"] == 1])), random_state=1)
     legit = df[df["isFraud"] == 0].sample(n=n - len(fraud), random_state=1)
     out = pd.concat([fraud, legit]).sample(frac=1, random_state=1).reset_index(drop=True)
     return out
+
+
+try:
+    load_paysim()  # fail-fast smoke check
+except Exception as exc:  # noqa: BLE001
+    st.error(
+        "Couldn't fetch PaySim from Hugging Face Hub.\n\n"
+        f"`{exc}`\n\n"
+        "Run notebook **01_setup_datasets.ipynb** in your HF training Space first."
+    )
+    st.stop()
 
 
 c1, c2, c3 = st.columns(3)

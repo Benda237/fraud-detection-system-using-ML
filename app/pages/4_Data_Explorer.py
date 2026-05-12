@@ -15,7 +15,6 @@ import streamlit as st
 from app.components import kpi, page_setup, section_title
 from app.components.charts import amount_distribution
 from app.components.sidebar import render_sidebar
-from src.config import CUSTOM_CSV, PAYSIM_CSV
 from src.data.loader import load_custom, load_paysim
 
 page_setup("Data Explorer", icon="🔍")
@@ -44,26 +43,24 @@ def _load_custom_cached() -> pd.DataFrame:
     return load_custom()
 
 
-if dataset.startswith("PaySim"):
-    if not PAYSIM_CSV.exists():
-        st.error(
-            "PaySim CSV not found. Run `python scripts/download_data.py --paysim` "
-            "or place the file at `data/raw/AIML Dataset.csv`."
-        )
-        st.stop()
-    df = _load_paysim_cached()
-    target = "isFraud"
-    amount_col = "amount"
-else:
-    if not CUSTOM_CSV.exists():
-        st.error(
-            "Custom CSV not found. Run `python scripts/download_data.py --custom` "
-            "or place the file at `data/raw/Fraud Detection Dataset.csv`."
-        )
-        st.stop()
-    df = _load_custom_cached()
-    target = "Fraudulent"
-    amount_col = "Transaction_Amount"
+try:
+    if dataset.startswith("PaySim"):
+        df = _load_paysim_cached()
+        target = "isFraud"
+        amount_col = "amount"
+    else:
+        df = _load_custom_cached()
+        target = "Fraudulent"
+        amount_col = "Transaction_Amount"
+except Exception as exc:  # noqa: BLE001
+    st.error(
+        "Couldn't fetch the dataset from Hugging Face Hub.\n\n"
+        f"`{exc}`\n\n"
+        "Make sure notebook **01_setup_datasets.ipynb** has been run in your HF "
+        "training Space — it pushes `paysim.csv` and `custom.csv` to "
+        "`{HF_USERNAME}/fraud-detection-datasets`."
+    )
+    st.stop()
 
 section_title("Overview")
 c1, c2, c3, c4 = st.columns(4)

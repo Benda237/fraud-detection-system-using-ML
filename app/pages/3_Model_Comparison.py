@@ -19,7 +19,7 @@ from app.components.charts import (
     roc_curve_fig,
 )
 from app.components.sidebar import render_sidebar
-from src.hf_hub.downloader import get_metadata
+from src.inference.predictor import get_metadata
 
 page_setup("Model Comparison", icon="📊")
 render_sidebar()

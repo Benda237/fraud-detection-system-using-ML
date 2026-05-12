@@ -13,7 +13,7 @@ import streamlit as st
 from app.components import kpi, page_setup, section_title
 from app.components.charts import feature_importance_bar
 from app.components.sidebar import render_sidebar
-from src.hf_hub.downloader import get_metadata
+from src.inference.predictor import get_metadata
 
 page_setup("Model Insights", icon="🧠")
 render_sidebar()

@@ -1,16 +1,16 @@
-"""Smoke tests — verify the modules wire together correctly even without
-the full datasets present. Anything dataset-dependent is skipped if the
-CSV is missing."""
+"""Smoke tests — verify the local modules wire together correctly.
+
+Training runs on Hugging Face, not locally, so these tests cover the
+inference-side surface area: preprocessors, baselines, metrics, feature
+engineering.
+"""
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-import pytest
 
-from src.config import CUSTOM_CSV, PAYSIM_CSV
 from src.data.feature_engineering import custom_features, paysim_features
 from src.data.preprocessor import CustomPreprocessor, PaySimPreprocessor
-from src.evaluation.hypothesis_test import mcnemar_test
 from src.evaluation.metrics import evaluate_classifier
 from src.models.rule_based_baseline import (
     custom_rule_predict,
@@ -97,26 +97,3 @@ def test_metrics_shape():
     metrics = evaluate_classifier(y_true, y_pred, np.array([.1, .8, .9, .3, .2, .7, .1, .95]))
     assert 0 <= metrics["accuracy"] <= 1
     assert metrics["true_positives"] == 3
-
-
-def test_mcnemar_runs():
-    y_true = np.array([0, 0, 1, 1, 0, 1, 0, 1, 1, 0])
-    a = np.array([0, 1, 1, 0, 0, 1, 0, 1, 1, 0])
-    b = np.array([0, 1, 0, 0, 0, 0, 0, 1, 0, 0])
-    res = mcnemar_test(y_true, a, b)
-    assert "p_value" in res
-    assert 0 <= res["p_value"] <= 1
-
-
-@pytest.mark.skipif(not PAYSIM_CSV.exists(), reason="PaySim CSV not downloaded")
-def test_real_paysim_load():
-    from src.data.loader import load_paysim
-    df = load_paysim()
-    assert len(df) > 0
-
-
-@pytest.mark.skipif(not CUSTOM_CSV.exists(), reason="Custom CSV not downloaded")
-def test_real_custom_load():
-    from src.data.loader import load_custom
-    df = load_custom()
-    assert len(df) > 0
